@@ -31,8 +31,9 @@
         }
 
         .card {
-            font-size: 100px;
-            padding: 65px 55px;
+            font-size: 25px;
+            padding: 10px;
+            width: 240px;
             border: 1px solid #5e5e5e;
             -webkit-border-radius: 5px;
             -moz-border-radius: 5px;
@@ -43,8 +44,32 @@
             margin-bottom: 10px;
         }
 
-        .card_suite {
-            font-size: 20px;
+        .card > .card_top_left {
+
+            padding-right: 85%;
+        }
+
+        .card > .card_bottom_right {
+
+            padding-left: 85%;
+            -moz-transform: scale(1, -1);
+            -webkit-transform: scale(1, -1);
+            -o-transform: scale(1, -1);
+            -ms-transform: scale(1, -1);
+            transform: scale(1, -1);
+        }
+
+        .card > .card_top_left > img, .card > .card_bottom_right > img {
+
+            width: 25px;
+        }
+
+        .card > .card_suit {
+            margin: 50px 0px;
+        }
+
+        .card > .card_suit > img {
+            width: 90px;
         }
 
         .score {
@@ -54,12 +79,12 @@
         }
 
         .high_score {
-            font-size: 12px;
+            font-size: 18px;
             margin-bottom: 20px;
         }
 
         .instructions {
-            font-size: 15px;
+            font-size: 20px;
             font-weight: bold;
             margin-bottom: 20px
         }
@@ -100,8 +125,23 @@
                 <div class="high_score">High Score = {{ $high_score }}</div>
 
                 <div class="card">
-                    {!! $card !!}
-                    <div class="card_suite">{{ $card_suite }}</div>
+
+                    <div class="card_top_left">
+                        {!! $card !!}<br/>
+                        <img src="/img/{!! $card_suit !!}.png" class="card_suit"/>
+                    </div>
+
+                    <div class="card_suit">
+
+                        <img src="/img/{!! $card_suit !!}.png" />
+
+                    </div>
+
+                    <div class="card_bottom_right">
+                        {!! $card !!}<br/>
+                        <img src="/img/{!! $card_suit !!}.png" class="card_suit"/>
+                    </div>
+
                 </div>
 
             </div>
@@ -129,20 +169,20 @@
 
         </div>
 
-        <div class="row">
+        {{--<div class="row">--}}
 
-            <div class="content">
-                {!! $deck !!} - {!! $cards_left !!}
-            </div>
+            {{--<div class="content">--}}
+                {{--{!! $deck !!} - {!! $cards_left !!}--}}
+            {{--</div>--}}
 
-        </div>
-        <div class="row">
+        {{--</div>--}}
+        {{--<div class="row">--}}
 
-            <div class="content">
-                {!! $debug !!}
-            </div>
+            {{--<div class="content">--}}
+                {{--{!! $debug !!}--}}
+            {{--</div>--}}
 
-        </div>
+        {{--</div>--}}
     </div>
 
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->

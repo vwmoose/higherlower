@@ -10,11 +10,9 @@ use Session;
 class CardController extends Controller
 {
 	// define a value for each card in the deck - doesnt matter which suite
-	private $suites		= array('hearts', 'diamonds', 'clubs', 'spades');
-	private $deck_values = array('1' => 'A', '2' , '3', '4', '5', '6', '7', '8', '9', '10', '11' => 'J', '12' => 'Q', '13' => 'K');
+	private $suits			= array('hearts', 'diamonds', 'clubs', 'spades');
+	private $deck_values	= array('1' => 'A', '2' , '3', '4', '5', '6', '7', '8', '9', '10', '11' => 'J', '12' => 'Q', '13' => 'K');
 	private $new_card;
-	private $new_card_value;
-	private $new_card_suite;
 	private $cards_left;
 
 	public function __construct()
@@ -22,6 +20,12 @@ class CardController extends Controller
 		// check to see if a deck exists
 		if (!Session::get('deck'))
 		{
+			// reset high score
+			Session::put('high_score',	0);
+
+			// save
+			Session::save();
+
 			// shuffle deck
 			$this->shuffleDeck();
 		}
@@ -30,18 +34,12 @@ class CardController extends Controller
     // initial view
 	public function index()
 	{
-		// reset high score
-		Session::put('high_score',	0);
-
-		// save
-		Session::save();
-
 		// get card
 		$this->getCard();
 
 		// view
-		return view('game', ['card'			=> $this->new_card,
-							 'card_suite'	=> $this->new_card_suite,
+		return view('game', ['card'			=> $this->new_card['face'],
+							 'card_suit'	=> $this->new_card['suit'],
 							 'cards_left'	=> $this->cards_left,
 							 'deck'			=> print_r(Session::get('deck'), true),
 							 'score'		=> Session::get('score'),
@@ -50,27 +48,28 @@ class CardController extends Controller
 							 'debug'		=> 'new game']);
 	}
 
-	// reset deck
+	// shuffle deck
 	public function shuffleDeck()
 	{
-		// iterate over suites
-		foreach ($this->suites as $suite)
-		{
-			// create an array of cards for this suite
-			$arrCards = array('A', '2' , '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K');
+		// iterate over the four suits
+		foreach ($this->suits as $suit) {
 
-			// shuffle them
-			shuffle($arrCards);
+			// produce 13 cards for each suit
+			foreach($this->deck_values AS $key => $value) {
 
-			// create suite in deck
-			$deck[$suite] = $arrCards;
+				// produce the 13 cards
+				$deck[] = array('suit' => $suit, 'value' => $key, 'face' => $value);
+			}
 		}
 
-		// define
+		// shuffle them
+		shuffle($deck);
+
+		// define session
 		Session::put('deck',		$deck);
 		Session::put('card',		'');
 		Session::put('card_value',	'');
-		Session::put('card_suite',	'');
+		Session::put('card_suit',	'');
 		Session::put('cards_left',	52);
 		Session::put('score',		0);
 		Session::put('lives',		3);
@@ -93,7 +92,7 @@ class CardController extends Controller
 		$this->getCard();
 
 		// check for success
-		if ($this->new_card_value > $current_card)
+		if ($this->new_card['value'] > $current_card)
 		{
 			// add a point to score
 			$this->addScore();
@@ -105,14 +104,14 @@ class CardController extends Controller
 		}
 
 		// view
-		return view('game', ['card'			=> $this->new_card,
-							 'card_suite'	=> $this->new_card_suite,
+		return view('game', ['card'			=> $this->new_card['face'],
+							 'card_suit'	=> $this->new_card['suit'],
 							 'cards_left'	=> $this->cards_left,
 							 'deck'			=> print_r(Session::get('deck'), true),
 							 'score'		=> Session::get('score'),
 							 'lives'		=> Session::get('lives'),
 							 'high_score'	=> Session::get('high_score'),
-							 'debug'		=> $this->new_card . ' > ' . $current_card]);
+							 'debug'		=> $this->new_card['face'] . ' > ' . $current_card]);
 	}
 	
 	// new card is lower than the existing card
@@ -126,7 +125,7 @@ class CardController extends Controller
 		$this->getCard();
 
 		// check for success
-		if ($this->new_card_value < $current_card)
+		if ($this->new_card['value'] < $current_card)
 		{
 			// add a point to score
 			$this->addScore();
@@ -138,14 +137,14 @@ class CardController extends Controller
 		}
 
 		// view
-		return view('game', ['card'			=> $this->new_card,
-							 'card_suite'	=> $this->new_card_suite,
+		return view('game', ['card'			=> $this->new_card['face'],
+							 'card_suit'	=> $this->new_card['suit'],
 							 'cards_left'	=> $this->cards_left,
 							 'deck'			=> print_r(Session::get('deck'), true),
 							 'score'		=> Session::get('score'),
 							 'lives'		=> Session::get('lives'),
 							 'high_score'	=> Session::get('high_score'),
-							 'debug'		=> $this->new_card . ' > ' . $current_card]);
+							 'debug'		=> $this->new_card['face'] . ' > ' . $current_card]);
 	}
 
 	// get next card
@@ -156,15 +155,13 @@ class CardController extends Controller
 		$this->cards_left	= Session::get('cards_left');
 
 		// pick next card
-		$this->new_card_suite 	= array_rand($deck);
-		$this->new_card			= array_pop($deck[$this->new_card_suite]);
-		$this->new_card_value	= array_search($this->new_card, $this->deck_values);
+		$this->new_card			= array_pop($deck);
 		$this->cards_left--;
 
 		// update session
-		Session::put('card',		$this->new_card);
-		Session::put('card_value',	$this->new_card_value);
-		Session::put('card_suite',	$this->new_card_suite);
+		Session::put('card',		$this->new_card['face']);
+		Session::put('card_value',	$this->new_card['value']);
+		Session::put('card_suit',	$this->new_card['suit']);
 		Session::put('cards_left',	$this->cards_left);
 		Session::put('deck',		$deck);
 
@@ -207,8 +204,12 @@ class CardController extends Controller
 		// check for no lives left
 		if ($lives == 0) {
 
-			// update high score
-			Session::put('high_score', Session::get('score'));
+			// check for current score beats the high score
+			if (Session::get('score') > Session::get('high_score')) {
+
+				// update high score
+				Session::put('high_score', Session::get('score'));
+			}
 		}
 
 		// update session
