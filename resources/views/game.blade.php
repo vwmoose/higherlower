@@ -70,6 +70,7 @@
 
         .card > .card_suit > img {
             width: 90px;
+            height: 90px;
         }
 
         .score {
