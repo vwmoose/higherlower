@@ -25,4 +25,4 @@ Route::group(['prefix' => 'higherlower'], function() {
     Route::get('lower',     'CardController@lower');
 });
 
-
+Route::get('api/deck', 'CardController@deck');

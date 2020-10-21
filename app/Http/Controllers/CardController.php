@@ -10,8 +10,8 @@ use Session;
 class CardController extends Controller
 {
 	// define a value for each card in the deck - doesnt matter which suite
-	private $suits			= array('hearts', 'diamonds', 'clubs', 'spades');
-	private $deck_values	= array('1' => 'A', '2' , '3', '4', '5', '6', '7', '8', '9', '10', '11' => 'J', '12' => 'Q', '13' => 'K');
+	private $suits			= ['hearts', 'diamonds', 'clubs', 'spades'];
+	private $deck_values	= ['1' => 'A', '2' , '3', '4', '5', '6', '7', '8', '9', '10', '11' => 'J', '12' => 'Q', '13' => 'K'];
 	private $new_card;
 	private $cards_left;
 
@@ -31,7 +31,31 @@ class CardController extends Controller
 		}
 	}
 
-    // initial view
+  /**
+   * return the deck as json
+   */
+  public function deck() 
+  {
+    // define
+    $deck = collect([]);
+
+    // iterate over the suits
+    foreach($this->suits as $suit)
+    {
+      // iterate over values
+      foreach($this->deck_values as $value)
+      {
+        $deck->push([
+          'value' => $value,
+          'suit'  => $suit,
+        ]);
+      }
+    }
+
+    return response()->json($deck->toArray());
+  }
+
+  // initial view
 	public function index()
 	{
 		// get card
